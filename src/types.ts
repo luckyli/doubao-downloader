@@ -24,6 +24,8 @@ export type Creation = {
   vid?: string;
 };
 
+export type MediaType = "all" | "image" | "video";
+
 export type ConvMessage = {
   // 索引(1为该对话的第一条消息)
   index_in_conv: number;
@@ -53,6 +55,7 @@ export type ConvFilter = {
   showConvId: string;
   currentPage: number;
   pageSize: number;
+  mediaType: MediaType;
   startTime?: number;
   endTime?: number;
 };

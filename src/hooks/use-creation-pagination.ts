@@ -1,6 +1,7 @@
 import { useContext, useMemo } from "react";
 import { ConvContext } from "@/context/ConvContext";
 import { ConvFilterContext } from "@/context/ConvFilterContext";
+import { filterConvsByMediaType } from "@/utils/media-filter";
 
 export function useCreationPagination() {
   const convMessages = useContext(ConvContext);
@@ -19,7 +20,9 @@ export function useCreationPagination() {
         return true;
       });
 
-    const totalItems = convs.length;
+    const filteredConvs = filterConvsByMediaType(convs, convFilter.mediaType);
+
+    const totalItems = filteredConvs.length;
     const pageSize = convFilter.pageSize || 12;
     const totalPages = Math.ceil(totalItems / pageSize);
 

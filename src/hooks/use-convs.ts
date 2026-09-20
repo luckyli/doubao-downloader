@@ -1,6 +1,7 @@
 import { useContext, useMemo } from "react";
 import { ConvContext } from "@/context/ConvContext";
 import { ConvFilterContext } from "@/context/ConvFilterContext";
+import { filterConvsByMediaType } from "@/utils/media-filter";
 
 /**
  * 获取conv列表
@@ -23,9 +24,11 @@ export function useConvs() {
         return true;
       });
 
+    const filteredConvs = filterConvsByMediaType(convs, convFilter.mediaType);
+
     const startIndex = (convFilter.currentPage - 1) * convFilter.pageSize;
     const endIndex = startIndex + convFilter.pageSize;
 
-    return convs.slice(startIndex, endIndex);
+    return filteredConvs.slice(startIndex, endIndex);
   }, [convMessages, convFilter]);
 }

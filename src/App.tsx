@@ -15,6 +15,7 @@ import { useLiveQuery } from "dexie-react-hooks";
 import { completeSuffix, replaceTemplate } from "./utils/common";
 import { getVideoUrl } from "@/api/video";
 import { matchesShortcut } from "@/utils/shortcut";
+import { filterConvsByMediaType } from "@/utils/media-filter";
 
 function settingValue<T>(settings: Setting[], key: SettingKey, fallback: T): T {
   return (settings.find((item) => item.key === key)?.value as T | undefined) ?? fallback;
@@ -29,6 +30,7 @@ function App() {
     showConvId: "-1",
     currentPage: 1,
     pageSize: 12,
+    mediaType: "all",
   });
   const setting =
     useLiveQuery(() => db.setting.toArray(), []) || ([] as Setting[]);
@@ -318,11 +320,13 @@ function App() {
 
   const handleDownloadAll = useCallback(() => {
     const selectConv = convFilter.showConvId;
-    const downloadConv = convMessageList.filter(
-      (conv) =>
-        conv.creation &&
-        (selectConv === "-1" || conv.conversation_id === selectConv),
-    );
+    const scopedConvs = convMessageList.filter((conv) => {
+      if (!conv.creation || (selectConv !== "-1" && conv.conversation_id !== selectConv)) return false;
+      if (convFilter.startTime && conv.create_time < convFilter.startTime) return false;
+      if (convFilter.endTime && conv.create_time > convFilter.endTime) return false;
+      return true;
+    });
+    const downloadConv = filterConvsByMediaType(scopedConvs, convFilter.mediaType);
     handleDownload(downloadConv);
   }, [convMessageList, convFilter, handleDownload]);
 
