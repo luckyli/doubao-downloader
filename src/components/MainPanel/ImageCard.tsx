@@ -23,7 +23,7 @@ interface ImageCardProps {
 
 function ImageCard({ className, conv, downloadedUrls }: ImageCardProps) {
   const wh = useIsMobile() ? 120 : 133;
-  const { handleDownload, handlePlay, handleSelect, selectKeys } = useContext(ConvContext);
+  const { handleDownload, handlePlay, handleSelect, handleDelete, selectKeys } = useContext(ConvContext);
 
   const isSelected = useMemo(
     () => conv.creation && selectKeys.includes(conv.creation?.image.key),
@@ -61,13 +61,13 @@ function ImageCard({ className, conv, downloadedUrls }: ImageCardProps) {
 
   return (
     <Card
-      className={`${className} dd:relative dd:flex dd:items-center dd:justify-center`}
+      className={`${className} dd:relative dd:flex dd:min-w-0 dd:flex-col dd:items-center dd:justify-center`}
     >
       <Image
         width={wh}
         height={wh}
         src={conv.creation.image.image_ori_raw.url}
-        style={{ marginTop: "10px" }}
+        style={{ marginTop: "10px", maxWidth: "100%" }}
       />
       {isDownloaded && (
         <Tag
@@ -93,12 +93,15 @@ function ImageCard({ className, conv, downloadedUrls }: ImageCardProps) {
           onClick={() => handlePlay(conv)}
         />
       )}
-      <Space className="dd:mt-2!">
+      <Space className="dd:mt-2! dd:w-full dd:flex-wrap dd:justify-center">
         <Button type="tertiary" onClick={showPrompt}>
           提示词
         </Button>
         <Button onClick={() => handleDownload([conv])} type="tertiary">
           下载
+        </Button>
+        <Button onClick={() => handleDelete(conv)} type="danger" theme="borderless">
+          删除
         </Button>
       </Space>
     </Card>
