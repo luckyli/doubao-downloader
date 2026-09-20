@@ -8,11 +8,16 @@ import {
 import { useIsMobile } from "@/hooks/use-mobile";
 import ActionCard from "./ActionCard";
 import { useCheckVersion } from "@/hooks/use-check-version";
+import type { MediaCounts } from "@/utils/media-filter";
+import type { MediaType } from "@/types";
 
 interface PanelHeaderProps {
   onCloseMainPanel: () => void;
   changeConv: (convId: string) => void;
   changeTimeRange: (startTime?: number, endTime?: number) => void;
+  changeMediaType: (mediaType: MediaType) => void;
+  mediaCounts: MediaCounts;
+  mediaType: MediaType;
   openSetting: () => void;
 }
 
@@ -20,6 +25,9 @@ function PanelHeader({
   onCloseMainPanel,
   changeConv,
   changeTimeRange,
+  changeMediaType,
+  mediaCounts,
+  mediaType,
   openSetting,
 }: PanelHeaderProps) {
   const isMobile = useIsMobile();
@@ -78,7 +86,13 @@ function PanelHeader({
           </Space>
         </div>
       </div>
-      <ActionCard changeConv={changeConv} changeTimeRange={changeTimeRange} />
+      <ActionCard
+        changeConv={changeConv}
+        changeMediaType={changeMediaType}
+        changeTimeRange={changeTimeRange}
+        mediaCounts={mediaCounts}
+        mediaType={mediaType}
+      />
     </div>
   );
 }

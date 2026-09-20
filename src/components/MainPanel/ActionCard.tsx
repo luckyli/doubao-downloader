@@ -1,13 +1,24 @@
 import { ConvContext } from "@/context/ConvContext";
-import { Button, Card, DatePicker, Select, Space } from "@douyinfe/semi-ui-19";
+import { Button, Card, DatePicker, Radio, RadioGroup, Select, Space } from "@douyinfe/semi-ui-19";
 import { memo, useContext, useMemo } from "react";
+import type { MediaCounts } from "@/utils/media-filter";
+import type { MediaType } from "@/types";
 
 interface ActionCardProps {
   changeConv: (convId: string) => void;
   changeTimeRange: (startTime?: number, endTime?: number) => void;
+  changeMediaType: (mediaType: MediaType) => void;
+  mediaCounts: MediaCounts;
+  mediaType: MediaType;
 }
 
-function ActionCard({ changeConv, changeTimeRange }: ActionCardProps) {
+function ActionCard({
+  changeConv,
+  changeTimeRange,
+  changeMediaType,
+  mediaCounts,
+  mediaType,
+}: ActionCardProps) {
   const { convMessage, handleDownloadAll, handleDownloadSelected } =
     useContext(ConvContext);
   const convMessageList = useMemo(
@@ -18,7 +29,7 @@ function ActionCard({ changeConv, changeTimeRange }: ActionCardProps) {
 
   return (
     <Card>
-      <div className="dd:w-full dd:flex dd:items-center dd:justify-between dd:flex-row dd:cursor-default">
+      <div className="dd:w-full dd:flex dd:flex-wrap dd:items-center dd:gap-2 dd:cursor-default">
         <Select
           defaultValue={defaultSelected}
           style={{ width: 200 }}
@@ -50,6 +61,16 @@ function ActionCard({ changeConv, changeTimeRange }: ActionCardProps) {
           }}
           style={{ width: 240 }}
         />
+        <RadioGroup
+          aria-label="媒体类型"
+          type="button"
+          value={mediaType}
+          onChange={(event) => changeMediaType(event.target.value as MediaType)}
+        >
+          <Radio value="all">全部 {mediaCounts.all}</Radio>
+          <Radio value="image">图片 {mediaCounts.image}</Radio>
+          <Radio value="video">视频 {mediaCounts.video}</Radio>
+        </RadioGroup>
         <Space>
           <Button onClick={handleDownloadSelected} type="tertiary">下载选中</Button>
           <Button onClick={handleDownloadAll} type="tertiary">全部下载</Button>

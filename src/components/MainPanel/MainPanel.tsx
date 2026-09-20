@@ -1,10 +1,13 @@
-import { memo, useCallback } from "react";
+import { memo, useCallback, useContext, useMemo } from "react";
 import { DragMove, Modal } from "@douyinfe/semi-ui-19";
 import { useIsMobile } from "@/hooks/use-mobile";
 import PanelHeader from "./PanelHeader";
 import PanelFooter from "./PanelFooter";
-import { ConvFilter } from "@/types";
+import { ConvFilter, MediaType } from "@/types";
 import ImageList from "./ImageList";
+import { ConvContext } from "@/context/ConvContext";
+import { ConvFilterContext } from "@/context/ConvFilterContext";
+import { countConvsByMediaType } from "@/utils/media-filter";
 
 const DESKTOP_WIDTH = "50rem";
 const DESKTOP_HEIGHT = "37.5rem";
@@ -21,6 +24,8 @@ interface MainPanelProps {
 
 function MainPanel(props: MainPanelProps) {
   const { isOpenMainPanel, onCloseMainPanel, changeConvFilter, openSetting } = props;
+  const { convMessage } = useContext(ConvContext);
+  const convFilter = useContext(ConvFilterContext);
   const isMobile = useIsMobile();
   const width = isMobile ? MOBILE_WIDTH : DESKTOP_WIDTH;
   const height = isMobile ? MOBILE_HEIGHT : DESKTOP_HEIGHT;
@@ -44,6 +49,21 @@ function MainPanel(props: MainPanelProps) {
     changeConvFilter("currentPage", 1);
   }, []);
 
+  const changeMediaType = useCallback((mediaType: MediaType) => {
+    changeConvFilter("mediaType", mediaType);
+    changeConvFilter("currentPage", 1);
+  }, []);
+
+  const mediaCounts = useMemo(() => countConvsByMediaType(
+    convMessage.filter((item) => {
+      if (!item.creation?.image.image_ori_raw.url) return false;
+      if (convFilter.showConvId !== "-1" && item.conversation_id !== convFilter.showConvId) return false;
+      if (convFilter.startTime && item.create_time < convFilter.startTime) return false;
+      if (convFilter.endTime && item.create_time > convFilter.endTime) return false;
+      return true;
+    }),
+  ), [convMessage, convFilter]);
+
   return (
     <Modal
       width={width}
@@ -53,7 +73,17 @@ function MainPanel(props: MainPanelProps) {
         paddingBottom: "20px",
         cursor: "default",
       }}
-      header={<PanelHeader openSetting={openSetting} changeConv={selectConv} changeTimeRange={changeTimeRange} onCloseMainPanel={onCloseMainPanel} />}
+      header={
+        <PanelHeader
+          changeConv={selectConv}
+          changeMediaType={changeMediaType}
+          changeTimeRange={changeTimeRange}
+          mediaCounts={mediaCounts}
+          mediaType={convFilter.mediaType}
+          onCloseMainPanel={onCloseMainPanel}
+          openSetting={openSetting}
+        />
+      }
       visible={isOpenMainPanel}
       onCancel={handleCancel}
       closeOnEsc={true}
