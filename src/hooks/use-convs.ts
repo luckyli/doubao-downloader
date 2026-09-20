@@ -2,6 +2,8 @@ import { useContext, useMemo } from "react";
 import { ConvContext } from "@/context/ConvContext";
 import { ConvFilterContext } from "@/context/ConvFilterContext";
 import { filterConvsByMediaType } from "@/utils/media-filter";
+import { filterDeletedConvs } from "@/utils/deleted-media";
+import { useDeletedMediaKeys } from "@/hooks/use-deleted-media-keys";
 
 /**
  * 获取conv列表
@@ -10,6 +12,7 @@ import { filterConvsByMediaType } from "@/utils/media-filter";
 export function useConvs() {
   const convMessages = useContext(ConvContext);
   const convFilter = useContext(ConvFilterContext);
+  const deletedKeys = useDeletedMediaKeys();
   
   return useMemo(() => {
     const convMessageList = convMessages.convMessage.filter(
@@ -24,11 +27,12 @@ export function useConvs() {
         return true;
       });
 
-    const filteredConvs = filterConvsByMediaType(convs, convFilter.mediaType);
+    const visibleConvs = filterDeletedConvs(convs, deletedKeys);
+    const filteredConvs = filterConvsByMediaType(visibleConvs, convFilter.mediaType);
 
     const startIndex = (convFilter.currentPage - 1) * convFilter.pageSize;
     const endIndex = startIndex + convFilter.pageSize;
 
     return filteredConvs.slice(startIndex, endIndex);
-  }, [convMessages, convFilter]);
+  }, [convMessages, convFilter, deletedKeys]);
 }

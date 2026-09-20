@@ -8,6 +8,8 @@ import ImageList from "./ImageList";
 import { ConvContext } from "@/context/ConvContext";
 import { ConvFilterContext } from "@/context/ConvFilterContext";
 import { countConvsByMediaType } from "@/utils/media-filter";
+import { filterDeletedConvs } from "@/utils/deleted-media";
+import { useDeletedMediaKeys } from "@/hooks/use-deleted-media-keys";
 
 const DESKTOP_WIDTH = "50rem";
 const DESKTOP_HEIGHT = "37.5rem";
@@ -26,6 +28,7 @@ function MainPanel(props: MainPanelProps) {
   const { isOpenMainPanel, onCloseMainPanel, changeConvFilter, openSetting } = props;
   const { convMessage } = useContext(ConvContext);
   const convFilter = useContext(ConvFilterContext);
+  const deletedKeys = useDeletedMediaKeys();
   const isMobile = useIsMobile();
   const width = isMobile ? MOBILE_WIDTH : DESKTOP_WIDTH;
   const height = isMobile ? MOBILE_HEIGHT : DESKTOP_HEIGHT;
@@ -55,14 +58,14 @@ function MainPanel(props: MainPanelProps) {
   }, []);
 
   const mediaCounts = useMemo(() => countConvsByMediaType(
-    convMessage.filter((item) => {
+    filterDeletedConvs(convMessage.filter((item) => {
       if (!item.creation?.image.image_ori_raw.url) return false;
       if (convFilter.showConvId !== "-1" && item.conversation_id !== convFilter.showConvId) return false;
       if (convFilter.startTime && item.create_time < convFilter.startTime) return false;
       if (convFilter.endTime && item.create_time > convFilter.endTime) return false;
       return true;
-    }),
-  ), [convMessage, convFilter]);
+    }), deletedKeys),
+  ), [convMessage, convFilter, deletedKeys]);
 
   return (
     <Modal

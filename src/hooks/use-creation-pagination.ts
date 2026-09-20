@@ -2,10 +2,13 @@ import { useContext, useMemo } from "react";
 import { ConvContext } from "@/context/ConvContext";
 import { ConvFilterContext } from "@/context/ConvFilterContext";
 import { filterConvsByMediaType } from "@/utils/media-filter";
+import { filterDeletedConvs } from "@/utils/deleted-media";
+import { useDeletedMediaKeys } from "@/hooks/use-deleted-media-keys";
 
 export function useCreationPagination() {
   const convMessages = useContext(ConvContext);
   const convFilter = useContext(ConvFilterContext);
+  const deletedKeys = useDeletedMediaKeys();
   
   return useMemo(() => {
     const convMessageList = convMessages.convMessage.filter(
@@ -20,7 +23,8 @@ export function useCreationPagination() {
         return true;
       });
 
-    const filteredConvs = filterConvsByMediaType(convs, convFilter.mediaType);
+    const visibleConvs = filterDeletedConvs(convs, deletedKeys);
+    const filteredConvs = filterConvsByMediaType(visibleConvs, convFilter.mediaType);
 
     const totalItems = filteredConvs.length;
     const pageSize = convFilter.pageSize || 12;
@@ -32,5 +36,5 @@ export function useCreationPagination() {
       currentPage: convFilter?.currentPage || 1,
       pageSize,
     };
-  }, [convMessages, convFilter]);
+  }, [convMessages, convFilter, deletedKeys]);
 }

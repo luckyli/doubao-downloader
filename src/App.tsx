@@ -16,6 +16,8 @@ import { completeSuffix, replaceTemplate } from "./utils/common";
 import { getVideoUrl } from "@/api/video";
 import { matchesShortcut } from "@/utils/shortcut";
 import { filterConvsByMediaType } from "@/utils/media-filter";
+import { filterDeletedConvs } from "@/utils/deleted-media";
+import { useDeletedMediaKeys } from "@/hooks/use-deleted-media-keys";
 
 function settingValue<T>(settings: Setting[], key: SettingKey, fallback: T): T {
   return (settings.find((item) => item.key === key)?.value as T | undefined) ?? fallback;
@@ -32,6 +34,7 @@ function App() {
     pageSize: 12,
     mediaType: "all",
   });
+  const deletedKeys = useDeletedMediaKeys();
   const setting =
     useLiveQuery(() => db.setting.toArray(), []) || ([] as Setting[]);
   const showCaptureNotification = settingValue(setting, "show_capture_notification", true);
@@ -318,6 +321,15 @@ function App() {
     window.open(playUrl, "_blank");
   }, [download, isDownloading, setting])
 
+  const handleDelete = useCallback(async (convMessage: ConvMessage) => {
+    const key = convMessage.creation?.image.key;
+    if (!key) return;
+    const existing = await db.deleted.where("key").equals(key).first();
+    if (!existing) await db.deleted.add({ key });
+    setSelectKeys((prev) => prev.filter((item) => item !== key));
+    Toast.success("已从面板移除");
+  }, []);
+
   const handleDownloadAll = useCallback(() => {
     const selectConv = convFilter.showConvId;
     const scopedConvs = convMessageList.filter((conv) => {
@@ -326,9 +338,10 @@ function App() {
       if (convFilter.endTime && conv.create_time > convFilter.endTime) return false;
       return true;
     });
-    const downloadConv = filterConvsByMediaType(scopedConvs, convFilter.mediaType);
+    const visibleConvs = filterDeletedConvs(scopedConvs, deletedKeys);
+    const downloadConv = filterConvsByMediaType(visibleConvs, convFilter.mediaType);
     handleDownload(downloadConv);
-  }, [convMessageList, convFilter, handleDownload]);
+  }, [convMessageList, convFilter, deletedKeys, handleDownload]);
 
   const handleDownloadSelected = useCallback(() => {
     handleDownload(
@@ -377,6 +390,7 @@ function App() {
           handleSelect,
           handleDownload,
           handlePlay,
+          handleDelete,
           handleDownloadAll,
           handleDownloadSelected,
         }}

@@ -1,4 +1,4 @@
-import type { Setting } from "@/types";
+import type { DeletedMedia, Setting } from "@/types";
 import Dexie, { type EntityTable } from "dexie";
 
 const DB_NAME = "DouBaoDownloader";
@@ -16,12 +16,20 @@ _old_db.version(1).stores({
 export const db = new Dexie(DB_NAME) as Dexie & {
   downloaded: EntityTable<{ id: number; url: string }, "id">;
   setting: EntityTable<Setting, "id">;
+  deleted: EntityTable<DeletedMedia, "id">;
 };
 
 db.version(2).stores({
   downloaded: "++id, url",
   setting: "++id, &key, value",
 });
+
+db.version(3).stores({
+  downloaded: "++id, url",
+  setting: "++id, &key, value",
+  deleted: "++id, &key",
+});
+
 
 
 export const SETTING_DEFAULTS: Setting[] = [
