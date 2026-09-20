@@ -15,6 +15,12 @@ import { ConvMessage } from "@/types";
 import { ConvContext } from "@/context/ConvContext";
 import { IconPlayCircle } from "@douyinfe/semi-icons";
 
+function formatCreationTime(timestamp: number) {
+  const date = new Date(timestamp);
+  const pad = (value: number) => String(value).padStart(2, "0");
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}`;
+}
+
 interface ImageCardProps {
   className?: string;
   conv: ConvMessage;
@@ -93,6 +99,9 @@ function ImageCard({ className, conv, downloadedUrls }: ImageCardProps) {
           onClick={() => handlePlay(conv)}
         />
       )}
+      <span className="dd:mt-2 dd:w-full dd:text-center dd:text-xs dd:text-muted-foreground">
+        创建于 {formatCreationTime(conv.create_time)}
+      </span>
       <Space className="dd:mt-2! dd:w-full dd:flex-wrap dd:justify-center">
         <Button type="tertiary" onClick={showPrompt}>
           提示词

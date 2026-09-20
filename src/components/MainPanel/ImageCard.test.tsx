@@ -28,7 +28,7 @@ const conv: ConvMessage = {
   tts_content: "prompt",
   conversation_id: "conversation",
   message_id: "message",
-  create_time: 1,
+  create_time: new Date(2026, 8, 20, 14, 40).getTime(),
   creation: {
     creation_type: "image",
     image: { image_ori_raw: { url: "https://example.com/image.png" }, key: "image-key", gen_params: "" },
@@ -57,5 +57,6 @@ describe("ImageCard layout", () => {
     expect(screen.getByTestId("actions").className).toContain("dd:flex-wrap");
     expect(screen.getByTestId("actions").className).toContain("dd:w-full");
     expect(screen.getByText("删除").closest("button")?.getAttribute("data-button-type")).toBe("danger");
+    expect(screen.getByText("创建于 2026-09-20 14:40")).toBeTruthy();
   });
 });
