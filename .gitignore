@@ -27,3 +27,8 @@ dist-ssr
 # chrome extention
 *.crx
 *.pem
+
+
+# Superpowers workspaces and generated docs (at any depth)
+**/superpowers/
+**/.superpowers/
