@@ -32,21 +32,23 @@ function SettingModal({ isOpenSetting, onCloseSetting }: SettingModalProps) {
   const { setting, updateSetting } = useContext(SettingContext);
 
   const getSetting = (key: SettingKey): Setting => {
-    const found = setting.find(item => item.key === key);
+    const found = setting.find((item) => item.key === key);
     if (found) return found;
-    const defaultItem = SETTING_DEFAULTS.find(item => item.key === key);
+    const defaultItem = SETTING_DEFAULTS.find((item) => item.key === key);
     if (defaultItem) return defaultItem as Setting;
     return { key, label: key, value: null } as Setting;
   };
 
-  const changeSetting = useCallback((item: Setting, value: any) => {
-    if (!item) {
-      Toast.error("无法获取到设置项");
-      return;
-    }
-    updateSetting({ ...item, value });
-  }, [updateSetting]);
-
+  const changeSetting = useCallback(
+    (item: Setting, value: any) => {
+      if (!item) {
+        Toast.error("无法获取到设置项");
+        return;
+      }
+      updateSetting({ ...item, value });
+    },
+    [updateSetting],
+  );
 
   const showRaw = getSetting("show_raw");
   const skipDownloaded = getSetting("skip_downloaded");
@@ -63,7 +65,6 @@ function SettingModal({ isOpenSetting, onCloseSetting }: SettingModalProps) {
   const downloadConcurrencyLocal = useSetting(downloadConcurrency, changeSetting);
   const panelShortcutLocal = useSetting(panelShortcut, changeSetting);
 
-
   const handleClose = () => {
     customFilenameTemplateLocal.flush();
     downloadConcurrencyLocal.flush();
@@ -71,24 +72,17 @@ function SettingModal({ isOpenSetting, onCloseSetting }: SettingModalProps) {
     onCloseSetting();
   };
 
-
   return (
     <Modal
       title="设置"
       visible={isOpenSetting}
       onCancel={handleClose}
+      maskClosable={true}
       footer={null}
-      getPopupContainer={() =>
-        document.getElementById("dd-modal-popup-container") || document.body
-      }
+      getPopupContainer={() => document.getElementById("dd-modal-popup-container") || document.body}
     >
       <div className="dd-setting-modal">
-        <Tabs
-          className="dd-setting-tabs"
-          defaultActiveKey="download"
-          tabPosition="left"
-          type="button"
-        >
+        <Tabs className="dd-setting-tabs" defaultActiveKey="download" tabPosition="left" type="button">
           <TabPane itemKey="download" tab="下载行为">
             <div className="dd-setting-content">
               <SettingRow
@@ -97,12 +91,22 @@ function SettingModal({ isOpenSetting, onCloseSetting }: SettingModalProps) {
                 label={showRaw.label}
               />
               <SettingRow
-                control={<Switch checked={skipDownloaded.value} onChange={(checked) => changeSetting(skipDownloaded, checked)} />}
+                control={
+                  <Switch
+                    checked={skipDownloaded.value}
+                    onChange={(checked) => changeSetting(skipDownloaded, checked)}
+                  />
+                }
                 description="避免重复处理已经保存过的图片"
                 label={skipDownloaded.label}
               />
               <SettingRow
-                control={<Switch checked={downloadByDisplayOrder.value} onChange={(checked) => changeSetting(downloadByDisplayOrder, checked)} />}
+                control={
+                  <Switch
+                    checked={downloadByDisplayOrder.value}
+                    onChange={(checked) => changeSetting(downloadByDisplayOrder, checked)}
+                  />
+                }
                 description="按当前列表从上到下的顺序写入文件"
                 label={downloadByDisplayOrder.label}
               />
@@ -138,7 +142,9 @@ function SettingModal({ isOpenSetting, onCloseSetting }: SettingModalProps) {
                 label={customFilenameTemplate.label}
               />
               <SettingRow
-                control={<Switch checked={createFolder.value} onChange={(checked) => changeSetting(createFolder, checked)} />}
+                control={
+                  <Switch checked={createFolder.value} onChange={(checked) => changeSetting(createFolder, checked)} />
+                }
                 description="以会话为单位整理下载文件"
                 label={createFolder.label}
               />
@@ -148,7 +154,12 @@ function SettingModal({ isOpenSetting, onCloseSetting }: SettingModalProps) {
           <TabPane itemKey="video" tab="视频">
             <div className="dd-setting-content">
               <SettingRow
-                control={<Switch checked={enable15sVideo.value} onChange={(checked) => changeSetting(enable15sVideo, checked)} />}
+                control={
+                  <Switch
+                    checked={enable15sVideo.value}
+                    onChange={(checked) => changeSetting(enable15sVideo, checked)}
+                  />
+                }
                 description="在列表中识别并提供 15 秒视频下载"
                 label={enable15sVideo.label}
               />
@@ -158,12 +169,24 @@ function SettingModal({ isOpenSetting, onCloseSetting }: SettingModalProps) {
           <TabPane itemKey="general" tab="通用">
             <div className="dd-setting-content">
               <SettingRow
-                control={<Switch aria-label={showCaptureNotification.label} checked={showCaptureNotification.value} onChange={(checked) => changeSetting(showCaptureNotification, checked)} />}
+                control={
+                  <Switch
+                    aria-label={showCaptureNotification.label}
+                    checked={showCaptureNotification.value}
+                    onChange={(checked) => changeSetting(showCaptureNotification, checked)}
+                  />
+                }
                 description="捕获到新图片或视频时显示通知"
                 label={showCaptureNotification.label}
               />
               <SettingRow
-                control={<Switch aria-label={hideIndicator.label} checked={hideIndicator.value} onChange={(checked) => changeSetting(hideIndicator, checked)} />}
+                control={
+                  <Switch
+                    aria-label={hideIndicator.label}
+                    checked={hideIndicator.value}
+                    onChange={(checked) => changeSetting(hideIndicator, checked)}
+                  />
+                }
                 description="隐藏屏幕右侧的豆包头像指示器"
                 label={hideIndicator.label}
               />
@@ -182,7 +205,6 @@ function SettingModal({ isOpenSetting, onCloseSetting }: SettingModalProps) {
               />
             </div>
           </TabPane>
-
         </Tabs>
       </div>
     </Modal>
