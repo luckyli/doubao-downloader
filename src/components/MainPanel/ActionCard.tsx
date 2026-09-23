@@ -16,6 +16,15 @@ function ActionCard({ changeConv, changeTimeRange, changeMediaType, mediaCounts,
   const { convMessage, handleDownloadAll, handleDownloadSelected } = useContext(ConvContext);
   const convMessageList = useMemo(() => convMessage.filter((item) => item.index_in_conv === 1), [convMessage]);
   const [dateRange, setDateRange] = useState<Date[]>();
+  const today = new Date();
+  const isToday =
+    dateRange?.length === 2 &&
+    dateRange.every(
+      (date) =>
+        date.getFullYear() === today.getFullYear() &&
+        date.getMonth() === today.getMonth() &&
+        date.getDate() === today.getDate(),
+    );
   const defaultSelected = "-1";
 
   return (
@@ -48,6 +57,7 @@ function ActionCard({ changeConv, changeTimeRange, changeMediaType, mediaCounts,
           style={{ width: 240 }}
         />
         <Button
+          theme={isToday ? "solid" : "light"}
           onClick={() => {
             const start = new Date();
             start.setHours(0, 0, 0, 0);
