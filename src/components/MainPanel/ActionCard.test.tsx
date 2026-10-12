@@ -64,17 +64,16 @@ describe("ActionCard", () => {
     const convMessage = [conv("image", "image-1"), conv("video", "video-1"), conv("image", "image-2")];
 
     render(
-      <ConvContext.Provider
-        value={{
-          convMessage,
-          selectKeys: [],
-          handleSelect: vi.fn(),
-          handleDownload: vi.fn(),
-          handlePlay: vi.fn(),
-          handleDownloadAll: vi.fn(),
-          handleDownloadSelected: vi.fn(),
-        }}
-      >
+      <ConvContext.Provider value={{
+        convMessage,
+        selectKeys: [],
+        handleSelect: vi.fn(),
+        handleDownload: vi.fn(),
+        handlePlay: vi.fn(),
+        handleDelete: vi.fn(),
+        handleDownloadAll: vi.fn(),
+        handleDownloadSelected: vi.fn(),
+      }}>
         <ActionCard
           changeConv={vi.fn()}
           changeMediaType={changeMediaType}
@@ -86,6 +85,7 @@ describe("ActionCard", () => {
     );
 
     expect(screen.getByText("全部 3")).toBeTruthy();
+    expect(screen.getByText("我的创作")).toBeTruthy();
     expect(screen.getByText("图片 2")).toBeTruthy();
     fireEvent.click(screen.getByRole("button", { name: "视频 1" }));
     expect(changeMediaType).toHaveBeenCalledWith("video");

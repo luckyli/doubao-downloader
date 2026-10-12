@@ -3,6 +3,7 @@ import { Button, Card, DatePicker, Radio, RadioGroup, Select, Space } from "@dou
 import { memo, useContext, useMemo, useState } from "react";
 import type { MediaCounts } from "@/utils/media-filter";
 import type { MediaType } from "@/types";
+import { AISPACE_FILTER } from "@/utils/conv-filter";
 
 interface ActionCardProps {
   changeConv: (convId: string) => void;
@@ -12,19 +13,29 @@ interface ActionCardProps {
   mediaType: MediaType;
 }
 
-function ActionCard({ changeConv, changeTimeRange, changeMediaType, mediaCounts, mediaType }: ActionCardProps) {
-  const { convMessage, handleDownloadAll, handleDownloadSelected } = useContext(ConvContext);
-  const convMessageList = useMemo(() => convMessage.filter((item) => item.index_in_conv === 1), [convMessage]);
-  const [dateRange, setDateRange] = useState<Date[]>();
-  const today = new Date();
-  const isToday =
-    dateRange?.length === 2 &&
-    dateRange.every(
-      (date) =>
-        date.getFullYear() === today.getFullYear() &&
-        date.getMonth() === today.getMonth() &&
-        date.getDate() === today.getDate(),
-    );
+function ActionCard({
+  changeConv,
+  changeTimeRange,
+  changeMediaType,
+  mediaCounts,
+  mediaType,
+}: ActionCardProps) {
+  const { convMessage, handleDownloadAll, handleDownloadSelected } =
+    useContext(ConvContext);
+  const convMessageList = useMemo(
+    () => convMessage.filter((item) => item.source !== "aispace" && item.index_in_conv === 1),
+    [convMessage],
+  );
+    const [dateRange, setDateRange] = useState<Date[]>();
+    const today = new Date();
+    const isToday =
+        dateRange?.length === 2 &&
+        dateRange.every(
+            (date) =>
+                date.getFullYear() === today.getFullYear() &&
+                date.getMonth() === today.getMonth() &&
+                date.getDate() === today.getDate(),
+        );
   const defaultSelected = "-1";
 
   return (
@@ -33,6 +44,9 @@ function ActionCard({ changeConv, changeTimeRange, changeMediaType, mediaCounts,
         <Select defaultValue={defaultSelected} style={{ width: 200 }} onChange={(value) => changeConv(value as string)}>
           <Select.Option className="dd:justify-start!" key="-1" value="-1">
             所有对话
+          </Select.Option>
+          <Select.Option className="dd:justify-start!" key={AISPACE_FILTER} value={AISPACE_FILTER}>
+            我的创作
           </Select.Option>
           {convMessageList.map((item) => (
             <Select.Option className="dd:justify-start!" key={item.conversation_id} value={item.conversation_id}>
